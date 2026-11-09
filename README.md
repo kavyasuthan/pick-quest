@@ -4,7 +4,7 @@
 
 Part of the **Quest Series**, a set of game-inspired 3D pieces by Kavya Suthan.
 
-**▶ Live demo:** `https://<your-github-username>.github.io/pick-quest/`
+**▶ Live demo:** [kavyasuthan.github.io/pick-quest](https://kavyasuthan.github.io/pick-quest/)
 
 ![Pick Quest: aerial view of the warehouse floor](preview.jpg)
 
