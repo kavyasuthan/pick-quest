@@ -182,6 +182,12 @@ body.arcade .pop{background:none;border:0;box-shadow:none;padding:0;min-width:0;
 @keyframes blink{50%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.pop.show{animation:none}}
 @media (max-width:1180px){.brand{display:none}}
+.hudcol{position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);left:max(16px,env(safe-area-inset-left,0px));width:min(380px,calc(100% - 32px));display:flex;flex-direction:column;align-items:stretch;gap:12px;pointer-events:none;z-index:2}
+#hudcol > *{position:relative;top:auto;left:auto;right:auto;transform:none;width:auto;max-width:none;min-width:0;pointer-events:auto}
+#hudcol > .pop{pointer-events:none;text-align:left}
+body.arcade .hudcol{top:calc(env(safe-area-inset-top,0px) + 74px)}
+body.mode-cinema .hudcol{top:calc(7vh + 14px)}
+body.mode-cinema.arcade .hudcol{top:calc(7vh + 66px)}
 @media (min-width:761px){.dock{max-width:calc(100% - var(--status-w,300px) - 48px)}}
 body.arcade{--status-w:360px}
 @media (max-width:760px){
@@ -218,6 +224,7 @@ body.arcade{--status-w:360px}
 <div id="app">
   <canvas id="c" tabindex="0" aria-label="3D aerial view of the warehouse floor plan. Drag to orbit, scroll to zoom."></canvas>
 
+  <div class="hudcol" id="hudcol">
   <header class="card brand">
     <div class="hazard"></div>
     <div class="in">
@@ -226,13 +233,27 @@ body.arcade{--status-w:360px}
       <p class="sub">Your floor plan in 3D. Drag to orbit, right-drag to pan, scroll or pinch to zoom.</p>
     </div>
   </header>
+  <section class="card mission" aria-label="Current mission">
+    <div class="hazard"></div>
+    <div class="in">
+      <div class="mhead"><p class="eyebrow" id="mTitle">Mission 01 · Mode B</p><span class="pct" id="mPct">0%</span></div>
+      <div class="objective" id="mObj">Collect an empty cage</div>
+      <dl class="mrow">
+        <dt>Target</dt><dd id="mTarget">Drop zone</dd>
+        <dt>Distance</dt><dd id="mDist">0 m</dd>
+        <dt>Items</dt><dd id="mItems">0 / 24</dd>
+      </dl>
+      <div class="bar big" aria-hidden="true"><i id="mBar"></i></div>
+    </div>
+  </section>
+  <div class="pop" id="pop" aria-live="polite"></div>
+  </div>
 
   <div class="arcade-bar" aria-hidden="true">
     <div><b>1UP</b><span id="aScore">000000</span></div>
     <div class="hi"><b>HI-SCORE</b><span id="aHi">000000</span></div>
     <div class="ms"><b>MISSION</b><span id="aMission">01</span></div>
   </div>
-  <div class="pop" id="pop" aria-live="polite"></div>
 
   <details class="card legend" id="legend">
     <summary>Legend</summary>
@@ -263,19 +284,7 @@ body.arcade{--status-w:360px}
     </div>
   </section>
 
-  <section class="card mission" aria-label="Current mission">
-    <div class="hazard"></div>
-    <div class="in">
-      <div class="mhead"><p class="eyebrow" id="mTitle">Mission 01 · Mode B</p><span class="pct" id="mPct">0%</span></div>
-      <div class="objective" id="mObj">Collect an empty cage</div>
-      <dl class="mrow">
-        <dt>Target</dt><dd id="mTarget">Drop zone</dd>
-        <dt>Distance</dt><dd id="mDist">0 m</dd>
-        <dt>Items</dt><dd id="mItems">0 / 24</dd>
-      </dl>
-      <div class="bar big" aria-hidden="true"><i id="mBar"></i></div>
-    </div>
-  </section>
+
 
   <section class="card dash" id="dash" hidden aria-label="Shift dashboard">
     <div class="hazard"></div>
