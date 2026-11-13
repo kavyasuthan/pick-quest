@@ -188,8 +188,25 @@ body.arcade .pop{background:none;border:0;box-shadow:none;padding:0;min-width:0;
 body.arcade .hudcol{top:calc(env(safe-area-inset-top,0px) + 74px)}
 body.mode-cinema .hudcol{top:calc(7vh + 14px)}
 body.mode-cinema.arcade .hudcol{top:calc(7vh + 66px)}
-@media (min-width:761px){.dock{max-width:calc(100% - var(--status-w,300px) - 48px)}}
-body.arcade{--status-w:360px}
+@media (min-width:761px){.dock{max-width:calc(100% - 32px)}}
+.brand .in{padding:10px 16px 12px;gap:2px}
+.brand h1{font-size:34px}
+.nowbox{display:grid;gap:6px;margin-top:4px;padding-top:10px;border-top:1px solid var(--line)}
+.now{display:flex;align-items:center;gap:8px;font:600 15px/1.25 var(--f-body);min-width:0}
+.now span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 14px;font-size:12.5px}
+.mini div{display:flex;gap:8px;align-items:baseline;min-width:0}
+.mini dt{font:400 10px/1.6 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);flex:none}
+.mini dd{margin:0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.mini .cells{margin-left:6px;gap:1px}
+.mini .cells i{width:5px;height:9px}
+.mini dd.batt{overflow:visible}
+.legend li.hint{display:block;margin-top:2px;padding-top:8px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+body.mode-cinema .nowbox{display:none}
+@media (max-height:720px){.brand{display:none}}
+body.arcade .now{font-size:11px;line-height:1.6}
+body.arcade .mini dd,body.arcade .mini{font-size:9px}
+body.arcade .mini dt{font-size:7px}
 @media (max-width:760px){
   .arcade-bar{font-size:10px !important}
   body.arcade .status{width:auto}
@@ -230,7 +247,6 @@ body.arcade{--status-w:360px}
     <div class="in">
       <p class="eyebrow">Warehouse Simulator</p>
       <h1>Pick Quest</h1>
-      <p class="sub">Your floor plan in 3D. Drag to orbit, right-drag to pan, scroll or pinch to zoom.</p>
     </div>
   </header>
   <section class="card mission" aria-label="Current mission">
@@ -244,6 +260,16 @@ body.arcade{--status-w:360px}
         <dt>Items</dt><dd id="mItems">0 / 24</dd>
       </dl>
       <div class="bar big" aria-hidden="true"><i id="mBar"></i></div>
+      <div class="nowbox" aria-label="Picker status">
+        <div class="now"><span class="lamp" id="sLamp"></span><span id="sTask">Charging</span></div>
+        <dl class="mini">
+          <div><dt>Where</dt><dd id="sWhere">Charging bay</dd></div>
+          <div><dt>Level</dt><dd id="sLevel">A</dd></div>
+          <div><dt>Battery</dt><dd class="batt"><span id="sBatt">64%</span><span class="cells" id="sCells" aria-hidden="true"></span></dd></div>
+          <div><dt>Lights</dt><dd id="sLights"><span class="lamp"></span>Off</dd></div>
+        </dl>
+        <span hidden id="sMode"></span><span hidden id="sCage"></span><span hidden><i id="sBar"></i></span>
+      </div>
     </div>
   </section>
   <div class="pop" id="pop" aria-live="polite"></div>
@@ -265,24 +291,11 @@ body.arcade{--status-w:360px}
       <li><span class="sw" style="background:#f2c200;clip-path:polygon(50% 0,100% 100%,0 100%)"></span>One-way aisle direction</li>
       <li><span class="sw" style="background:#3fd0ff"></span>Selected picker route</li>
       <li><span class="sw" style="background:#ff4b3a;border-radius:50%;width:12px"></span>Red light: moving in pit lane</li>
+      <li class="hint">Drag to orbit · right-drag to pan · scroll or pinch to zoom</li>
     </ul>
   </details>
 
-  <section class="card status" aria-label="Picker status">
-    <div class="hazard"></div>
-    <div class="in">
-      <p class="eyebrow" id="sMode">Picker · Mode B</p>
-      <div class="task" id="sTask">Charging</div>
-      <dl>
-        <dt>Where</dt><dd id="sWhere">Charging bay</dd>
-        <dt>Level</dt><dd id="sLevel">A</dd>
-        <dt>Cage</dt><dd id="sCage">0 / 24</dd>
-        <dt>Battery</dt><dd><span id="sBatt">64%</span><span class="cells" id="sCells" aria-hidden="true"></span></dd>
-        <dt>Lights</dt><dd id="sLights"><span class="lamp"></span>Off</dd>
-      </dl>
-      <div class="bar" aria-hidden="true"><i id="sBar"></i></div>
-    </div>
-  </section>
+
 
 
 
@@ -1225,6 +1238,7 @@ body.arcade{--status-w:360px}
 
   /* ---------- HUD ---------- */
   const $ = id => document.getElementById(id);
+  const sLampEl = $('sLamp');
   const ui = { mode: $('sMode'), task: $('sTask'), where: $('sWhere'), level: $('sLevel'), cage: $('sCage'), batt: $('sBatt'), lights: $('sLights'), bar: $('sBar') };
   let lastUI = '';
   let hi = 0;
@@ -1303,6 +1317,7 @@ body.arcade{--status-w:360px}
     ui.cage.textContent = st.cage ? `${st.items} / 24 items` : 'No cage attached';
     ui.batt.textContent = Math.round(st.battery) + '%';
     ui.lights.innerHTML = `<span class="lamp${lightsOn ? ' on' : ''}"></span>${lightTxt}`;
+    sLampEl.className = 'lamp' + (lightsOn ? ' on' : '');
     ui.bar.style.width = (st.cage ? (st.items / 24) * 100 : 0) + '%';
   }
 
